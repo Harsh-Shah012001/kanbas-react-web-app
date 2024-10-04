@@ -16,33 +16,33 @@ export default function KanbasNavigation() {
       <Link to="/Kanbas/Account" id="wd-account-link"
         className={`nav-link ${pathname.includes("Account") ? "list-group-item text-red bg-white text-center border-0" : "list-group-item text-white bg-black text-center border-0"}`}>
         <FaRegCircleUser className="fs-1 text text-white" />
-        Account </Link><br />
+        Account </Link>
 
       <Link to="/Kanbas/Dashboard" id="wd-dashboard-link"
         className={`nav-link ${pathname.includes("Dashboard") ? "list-group-item text-red bg-white text-center border-0" : "list-group-item text-white bg-black text-center border-0"}`}>
         <AiOutlineDashboard className="fs-1 text-danger" />
-        Dashboard </Link><br />
+        Dashboard </Link>
 
       <Link to="/Kanbas/Courses/1" id="wd-course-link"
         className={`nav-link ${pathname.includes("Courses") ? "list-group-item text-red bg-white text-center border-0" : "list-group-item text-white bg-black text-center border-0"}`}>
         <LiaBookSolid className="fs-1 text-danger" />
-        Courses </Link><br />
+        Courses </Link>
 
       <Link to="/Kanbas/Calendar" id="wd-calendar-link"
         className={`nav-link ${pathname.includes("Calendar") ? "list-group-item text-red bg-white text-center border-0" : "list-group-item text-white bg-black text-center border-0"}`}>
         <IoCalendarOutline className="fs-1 text-danger" />
-        Calender </Link><br />
+        Calender </Link>
 
 
       <Link to="/Kanbas/Inbox" id="wd-inbox-link"
         className={`nav-link ${pathname.includes("Inbox") ? "list-group-item text-red bg-white text-center border-0" : "list-group-item text-white bg-black text-center border-0"}`}>
-        <FaInbox className="fs-1 text-danger" />
-        &nbsp;&nbsp;&nbsp;Inbox &nbsp;&nbsp;&nbsp;    </Link><br />
-        
+        <FaInbox className="fs-1 text-danger" /><br />
+        Inbox  </Link>
+
       <Link to="/Labs" id="wd-labs-link"
         className={`nav-link ${pathname.includes("Labs") ? "list-group-item text-red bg-white text-center border-0" : "list-group-item text-white bg-black text-center border-0"}`}>
-        <LiaCogSolid className="fs-1 text-danger" />
-        &nbsp; Labs&nbsp; </Link><br />
+        <LiaCogSolid className="fs-1 text-danger" /><br />
+        Labs </Link>
     </div>
 
 
