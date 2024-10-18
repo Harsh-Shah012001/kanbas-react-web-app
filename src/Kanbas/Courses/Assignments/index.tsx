@@ -6,9 +6,12 @@ import { LuFileEdit } from "react-icons/lu";
 import { CiSearch } from "react-icons/ci";
 import AssignmentControlRightButtons from "./AssignmentControlRightButtons";
 import { Link } from "react-router-dom";
+import { useParams } from "react-router";
+import * as db from "../../Database";
 
 export default function Assignments() {
-
+  const assignments=db.assignments
+  const {cid}=useParams()
   return (
     <div>
       <div className="container mt-4 mb-4">
@@ -38,17 +41,18 @@ export default function Assignments() {
           </div>
 
           <ul className="wd-lessons list-group rounded-0">
-            <Link to="/Kanbas/Courses/1234/Assignments/123" className="no-underline">
+          {assignments.filter((assign: any)=> assign.course===cid).map((assign:any)=>(
+            <Link to={`/Kanbas/Courses/${cid}/Assignments/${assign._id}`} className="no-underline">
               <li className="wd-lesson list-group-item p-3 ps-1 d-flex justify-content-between">
                 <div className="d-flex align-items-center">
                   <BsGripVertical className="me-2 fs-3" />
                   <LuFileEdit className="me-2 fs-3" />
                   <div>
-                    A1
+                    {assign.title}
                     <br />
                     <span className="text-danger">Multiple Modules</span> |
-                    <b>Not available until </b> May 6 at 12:00 am | <br />
-                    <b>Due</b> May 13 at 11:59 pm | 100 pts
+                    <b>Not available until </b> {assign.availableDate} | <br />
+                    <b>Due</b> {assign.dueDate} | {assign.points} pts
                   </div>
                 </div>
                 <div className="float-end">
@@ -56,44 +60,7 @@ export default function Assignments() {
                 </div>
               </li>
             </Link>
-
-            <Link to="/Kanbas/Courses/1234/Assignments/123" className="no-underline">
-              <li className="wd-lesson list-group-item p-3 ps-1 d-flex justify-content-between">
-                <div className="d-flex align-items-center">
-                  <BsGripVertical className="me-2 fs-3" />
-                  <LuFileEdit className="me-2 fs-3" />
-                  <div>
-                    A2
-                    <br />
-                    <span className="text-danger">Multiple Modules</span> |
-                    <b>Not available until </b> May 13 at 12:00 am |<br />
-                    <b>Due</b> May 20 at 11:59 pm | 100 pts
-                  </div>
-                </div>
-                <div className="float-end">
-                  <AssignmentControlRightButtons />
-                </div>
-              </li>
-            </Link>
-
-            <Link to="/Kanbas/Courses/1234/Assignments/123" className="no-underline">
-              <li className="wd-lesson list-group-item p-3 ps-1 d-flex justify-content-between">
-                <div className="d-flex align-items-center">
-                  <BsGripVertical className="me-2 fs-3" />
-                  <LuFileEdit className="me-2 fs-3" />
-                  <div>
-                    A3
-                    <br />
-                    <span className="text-danger">Multiple Modules</span> |
-                    <b>Not available until </b> May 20 at 12:00 am |<br />
-                    <b>Due</b> May 27 at 11:59 pm | 100 pts
-                  </div>
-                </div>
-                <div className="float-end">
-                  <AssignmentControlRightButtons />
-                </div>
-              </li>
-            </Link>
+          ))}
 
           </ul>
         </li>
