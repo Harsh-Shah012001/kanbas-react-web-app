@@ -51,8 +51,8 @@ export default function Assignments() {
                     {assign.title}
                     <br />
                     <span className="text-danger">Multiple Modules</span> |
-                    <b>Not available until </b> {assign.availableDate} | <br />
-                    <b>Due</b> {assign.dueDate} | {assign.points} pts
+                    <b>Not available until </b> {assign.availableDate} {assign.availableTime} | <br />
+                    <b>Due</b> {assign.dueDate} {assign.dueTime} | {assign.points} pts
                   </div>
                 </div>
                 <div className="float-end">
