@@ -1,19 +1,52 @@
-import { useParams } from "react-router";
 import * as db from "../../Database";
+import { useLocation, useNavigate, useParams } from "react-router";
+import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { useState } from "react";
+import { addAssignment, editAssignment } from "./reducer";
 
 export default function AssignmentEditor() {
-  const assignments = db.assignments
-  const { cid, aid } = useParams()
-  const assign=assignments.filter((assign: any)=> assign._id===aid)[0]
+  const { cid,aid } = useParams();
+  const { pathname } = useLocation();
+  const { assignments } = useSelector((state: any) => state.assignmentsReducer);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  let assignment = {title: "New Assignment",
+    course: cid,
+    type: "Multiple Modules",
+    availableDate: "2024-10-31",
+    availableTime: "12:00am",
+    dueDate: "2024-11-07",
+    dueTime: "11:59pm",
+    points: "100",
+    description : "Test Assignment"}
+
+    const dbassignment = assignments.filter((assignment:any)=>(assignment._id === aid))[0];
+    if(dbassignment){
+     assignment = dbassignment
+    }
+  
+    const [title, setTitle] = useState(assignment.title);
+    const [type, setType] = useState(assignment.type);
+    const [availableDate, setAvailableDate] = useState(assignment.availableDate);
+    const [availableTime, setAvailableTime] = useState(assignment.availableTime);
+    const [dueDate, setDueDate] = useState(assignment.dueDate);
+    const [dueTime, setDueTime] = useState(assignment.dueTime);
+    const [points, setPoints] = useState(assignment.points);
+    const [description, setDescription] = useState(assignment.description);
+
+
+   
   return (
     <div id="wd-assignments-editor">
       <div className="col ms-3">
         <div className="row ms-2">
-          <h5>Assignment</h5>
+          <h5>Assignment Name</h5>
         </div>
         <div className="row ms-3 me-3 mb-4">
           <label htmlFor="wd-name" className="form-label"></label>
-          <input id="wd-name" className="form-control" value={assign.title} />
+          <input id="wd-name" className="form-control" value={title}
+          onChange={(e) => setTitle(e.target.value)} />
           <br />
           <br />
         </div>
@@ -21,8 +54,10 @@ export default function AssignmentEditor() {
           <textarea
             id="wd-description"
             className=" form-control border border-dark rounded-1  mt-2"
-            rows={10}>
-            {assign.desc}
+            rows={10}
+            onChange={(e) => setDescription(e.target.value)}
+          >
+            {description}
           </textarea>
         </div>
         <div className="ms-3 mb-4 me-2 row d-flex">
@@ -35,7 +70,8 @@ export default function AssignmentEditor() {
             <input
               id="wd-points"
               className=" form-control border border-dark rounded-1"
-              value={assign.points}
+              value={points}
+              onChange={(e) => setPoints(e.target.value)}
             />
           </div>
         </div>
@@ -185,7 +221,8 @@ export default function AssignmentEditor() {
                 id="wd-assign-to"
                 type="date"
                 className=" form-control mb-3 border border-dark rounded-1"
-                value={assign.dueDate}
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
               />
               <div className="row">
                 <div className="col-6">
@@ -198,7 +235,8 @@ export default function AssignmentEditor() {
                     id="wd-available-from"
                     type="date"
                     className=" form-control mb-3 border border-dark rounded-1"
-                    value={assign.availableDate}
+                    value={availableDate}
+                    onChange={(e) => setAvailableDate(e.target.value)}
                   />
                 </div>
                 <div className="col-6">
@@ -211,7 +249,8 @@ export default function AssignmentEditor() {
                     id="wd-available-until"
                     type="date"
                     className=" form-control mb-3 border border-dark rounded-1"
-                    value={assign.until}
+                    value={dueDate}
+                    onChange={(e) => setDueDate(e.target.value)}
                   />
                 </div>
               </div>
@@ -219,24 +258,57 @@ export default function AssignmentEditor() {
           </div>
         </div>
         <div className="ms-3 mb-4 me-2 row d-flex">
-          <hr></hr>
-          <div className="d-flex me-2 justify-content-end w-100">
-            <button
-              id="wd-add-assignment-group"
-              className="float-end text-nowrap btn btn-lg btn-secondary me-1"
-            >
-              Cancel
-            </button>
-            <button
-              id="wd-add-assignment-group"
-              className="float-end text-nowrap btn btn-lg btn-danger me-1"
-            >
-              Submit
-            </button>
-          </div>
-        </div>
+        <hr></hr>
+      <div className="d-flex me-2 justify-content-end w-100">
 
+      <Link to ={`${pathname.split(aid?aid:"")[0]}`}><button
+          id="wd-add-assignment-group"
+          className="float-end text-nowrap btn btn-lg btn-secondary me-1"
+        >
+          Cancel
+        </button></Link>
+
+        <Link to ={`${pathname.split(aid?aid:"")[0]}`}><button
+          id="wd-add-assignment-group"
+          className="float-end text-nowrap btn btn-lg btn-danger me-1"
+          onClick = {()=>{
+            if(dbassignment){
+              dispatch(editAssignment({
+                _id:dbassignment._id,
+                title,
+                course:cid,
+                type,
+                availableDate,
+                availableTime,
+                dueDate,
+                dueTime,
+                points,
+                description,
+              }))
+            }
+            else{dispatch(addAssignment({
+              title,
+              course:cid,
+              type,
+              availableDate,
+              availableTime,
+              dueDate,
+              dueTime,
+              points,
+              description,
+            }));}
+              
+              navigate(pathname.split(aid?aid:"")[0]);
+          }}
+        >
+          Submit
+        </button></Link>
+        
       </div>
+        </div>
+        
+      </div>
+      
     </div>
   );
 }
