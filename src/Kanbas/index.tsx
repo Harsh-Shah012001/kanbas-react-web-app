@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router";
+import { Routes, Route, Navigate, useParams } from "react-router";
 import Account from "./Account";
 import Dashboard from "./Dashboard";
 import KanbasNavigation from "./Navigation";
@@ -8,72 +8,36 @@ import PeopleTable from "./Courses/People/Table";
 import * as db from "./Database";
 import { useState } from "react";
 import ProtectedRoute from "./Account/ProtectedRoute";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import {addCourse, deleteCourse, updateCourse} from "./Dashboard/Courses/reducer"
+import ProtectedDashboard from "./Dashboard/protectedDashboard";
 export default function Kanbas() {
+  const dispatch = useDispatch();
   const { enrollments } = useSelector((state: any) => state.enrollmentReducer);
   const { currentUser } = useSelector((state: any) => state.accountReducer);
-  // const {courses} = useSelector((state:any) => state.coursesReducer);
-  const [toggler, setToggler] = useState(false)
-  const [courses, setCourses] = useState<any[]>(db.courses.filter((course) =>
-    enrollments.some(
-      (enrollment: any) =>
-        enrollment.course === course._id
-    )
-  )
-  // .map((course) => ({ ...course, enrolled: true }))
-);
+  const allcourse = useSelector((state:any) => state.coursesReducer).courses;
+  const [toggler, setToggler] = useState(true)
   const [course, setCourse] = useState<any>({
     _id: "1234", name: "New Course", number: "New Number",
     startDate: "2023-09-10", endDate: "2023-12-15", description: "New Description",
   });
   const addNewCourse = () => {
-    setCourses([...courses, { ...course, _id: new Date().getTime().toString() }]);
+    dispatch(addCourse({ ...course, _id: new Date().getTime().toString() }))
   };
-  const deleteCourse = (courseId: any) => {
-    setCourses(courses.filter((course) => course._id !== courseId));
+  const deleteACourse = (courseId: any) => {
+    dispatch(deleteCourse( {course:courseId} ))
   };
-  const updateCourse = () => {
-    setCourses(
-      courses.map((c) => {
-        if (c._id === course._id) {
-          return course;
-        } else {
-          return c;
-        }
-      })
-    );
+  const updateACourse = () => {
+    dispatch(updateCourse({...course}))
   };
 
   const toggle = ()=>{
     
-    if(toggler || currentUser.role != "STUDENT"){
-      // console.log("in else")
-      setCourses(db.courses.filter((course) =>
-        enrollments.some(
-          (enrollment: any) =>
-            enrollment.user === currentUser._id &&
-            enrollment.course === course._id
-        )
-      )
-      .map((course) => ({ ...course, enrolled: true })))
+    if(toggler){
       setToggler(false)
       
     }
     else{
-      // console.log("in if")
-      setCourses(db.courses
-        .map((course)=>{
-          if(enrollments.some(
-            (enrollment: any) =>
-              enrollment.user === currentUser._id &&
-              enrollment.course === course._id
-          )){
-            return { ...course, enrolled: true }
-          }
-          else{
-            return { ...course, enrolled: false }
-          }
-        }))
         setToggler(true)
     }
   
@@ -89,19 +53,58 @@ export default function Kanbas() {
               <Route path="/Dashboard" element={
                 <ProtectedRoute>
                 <Dashboard
-                courses={courses}
+                courses={ currentUser && (toggler || currentUser.role == "FACULTY") ? currentUser && allcourse.filter((course:any) =>
+                  enrollments.some(
+                    (enrollment: any) =>
+                      enrollment.user === currentUser._id &&
+                      enrollment.course === course._id
+                  )
+                ).map((course:any) => ({ ...course, enrolled: true }))
+              :
+              currentUser && allcourse.map((course:any)=>{
+                if(enrollments.some(
+                  (enrollment: any) =>
+                    enrollment.user === currentUser._id &&
+                    enrollment.course === course._id
+                )){
+                  return { ...course, enrolled: true }
+                }
+                else{
+                  return { ...course, enrolled: false }
+                }
+              })
+            }
                 course={course}
                 setCourse={setCourse}
                 addNewCourse={addNewCourse}
-                deleteCourse={deleteCourse}
-                updateCourse={updateCourse}
+                deleteCourse={deleteACourse}
+                updateCourse={updateACourse}
                 toggle = {toggle}/>
                 </ProtectedRoute>
               } />
               <Route path="/Courses/:cid/*" element={
-                <ProtectedRoute>
-                <Courses courses={courses} />
-                </ProtectedRoute>
+                <ProtectedDashboard>
+                <Courses courses={currentUser && (toggler || currentUser.role == "FACULTY") ? currentUser && allcourse.filter((course:any) =>
+                  enrollments.some(
+                    (enrollment: any) =>
+                      enrollment.user === currentUser._id &&
+                      enrollment.course === course._id
+                  )
+                ).map((course:any) => ({ ...course, enrolled: true }))
+              :
+              currentUser && allcourse.map((course:any)=>{
+                if(enrollments.some(
+                  (enrollment: any) =>
+                    enrollment.user === currentUser._id &&
+                    enrollment.course === course._id
+                )){
+                  return { ...course, enrolled: true }
+                }
+                else{
+                  return { ...course, enrolled: false }
+                }
+              })} />
+                </ProtectedDashboard>
                 
                 } />
               <Route path="/Calendar" element={<h1>Calendar</h1>} />

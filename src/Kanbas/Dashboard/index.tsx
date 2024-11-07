@@ -25,9 +25,10 @@ export default function Dashboard({
   updateCourse: () => void;
   toggle: ()=>void
 }) {
-  const { currentUser } = useSelector((state: any) => state.accountReducer);
+  
   const dispatch = useDispatch();
   const { enrollments } = useSelector((state: any) => state.enrollmentReducer);
+  const { currentUser } = useSelector((state: any) => state.accountReducer);
   
   return (
     <div id="wd-dashboard">

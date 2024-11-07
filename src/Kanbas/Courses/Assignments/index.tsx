@@ -82,7 +82,7 @@ export default function Assignments() {
                   </div>
                   {currentUser && currentUser.role === "FACULTY" && (
                     <div className="float-end">
-                      <AssignmentControlRightButtons />
+                      <AssignmentControlRightButtons aid={assign._id}/>
                     </div>
                   )}
                   <AssignmentDelete
