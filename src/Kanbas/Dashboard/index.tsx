@@ -27,7 +27,6 @@ export default function Dashboard({
 }) {
   
   const dispatch = useDispatch();
-  const { enrollments } = useSelector((state: any) => state.enrollmentReducer);
   const { currentUser } = useSelector((state: any) => state.accountReducer);
   
   return (
@@ -86,19 +85,7 @@ export default function Dashboard({
       <hr />
       <div id="wd-dashboard-courses" className="row">
         <div className="row row-cols-1 row-cols-md-5 g-4">
-          {courses.map((course)=>{
-        if(enrollments.some(
-          (enrollment: any) =>
-            enrollment.user === currentUser._id &&
-            enrollment.course === course._id
-        )){
-          return { ...course, enrolled: true }
-        }
-        else{
-          return { ...course, enrolled: false }
-        }
-      })
-            .map((course) => (
+          {courses.map((course) => (
               <div
                 className="wd-dashboard-course col"
                 style={{ width: "300px" }}

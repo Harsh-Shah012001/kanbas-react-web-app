@@ -10,7 +10,10 @@ import { useNavigate, useParams } from "react-router";
 import * as db from "../../Database";
 import AssignmentDelete from "./delete";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteAssignment } from "./reducer";
+import { setAssignments,deleteAssignment, editAssignment, addAssignment } from "./reducer";
+import * as coursesClient from "../client";
+import { useEffect } from "react";
+import * as assignmentClient from "./client";
 export default function Assignments() {
   const { cid } = useParams()
 
@@ -18,6 +21,23 @@ export default function Assignments() {
   const dispatch = useDispatch();
   const { assignments } = useSelector((state: any) => state.assignmentsReducer);
   const { currentUser } = useSelector((state: any) => state.accountReducer);
+  const fetchAssignments = async () => {
+    const assigns = await coursesClient.findAssignmentsForCourse(cid as string);
+    dispatch(setAssignments(assigns));
+  };
+  useEffect(() => {
+    fetchAssignments();
+  }, []);
+
+  const removeAssignment = async (assignId: string) => {
+    await assignmentClient.deleteAssignment(assignId);
+    dispatch(deleteAssignment(assignId));
+  };
+
+
+
+
+
   return (
     <div>
       <div className="container mt-4 mb-4">
@@ -55,7 +75,7 @@ export default function Assignments() {
           </div>
 
           <ul className="wd-lessons list-group rounded-0">
-            {assignments.filter((assign: any) => assign.course === cid).map((assign: any) => (
+            {assignments.map((assign: any) => (
                 <li className="wd-lesson list-group-item p-3 ps-1 d-flex justify-content-between">
                   <div className="d-flex align-items-center">
                     <BsGripVertical className="me-2 fs-3" />
@@ -88,9 +108,7 @@ export default function Assignments() {
                   <AssignmentDelete
                     title={assign.title}
                     id={assign._id}
-                    deleteAssignment={(id) => {
-                      dispatch(deleteAssignment(id));
-                    }}
+                    deleteAssignment={(assignId) => removeAssignment(assignId)}
                   />
 
                 </li>

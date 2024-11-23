@@ -4,32 +4,56 @@ import Dashboard from "./Dashboard";
 import KanbasNavigation from "./Navigation";
 import Courses from "./Courses";
 import "./styles.css"
+import * as userClient from "./Account/client";
+import Session from "./Account/Session";
 import PeopleTable from "./Courses/People/Table";
-import * as db from "./Database";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ProtectedRoute from "./Account/ProtectedRoute";
 import { useDispatch, useSelector } from "react-redux";
 import {addCourse, deleteCourse, updateCourse} from "./Dashboard/Courses/reducer"
 import ProtectedDashboard from "./Dashboard/protectedDashboard";
+import * as courseClient from "./Courses/client";
 export default function Kanbas() {
+  const [courses, setCourses] = useState<any[]>([]);
+  const { currentUser } = useSelector((state: any) => state.accountReducer);
+  const fetchCourses = async () => {
+    try {
+      const courses = await userClient.findMyCourses();
+      setCourses(courses);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    fetchCourses();
+  }, [currentUser]);
+
   const dispatch = useDispatch();
   const { enrollments } = useSelector((state: any) => state.enrollmentReducer);
-  const { currentUser } = useSelector((state: any) => state.accountReducer);
   const allcourse = useSelector((state:any) => state.coursesReducer).courses;
   const [toggler, setToggler] = useState(true)
   const [course, setCourse] = useState<any>({
     _id: "1234", name: "New Course", number: "New Number",
     startDate: "2023-09-10", endDate: "2023-12-15", description: "New Description",
   });
-  const addNewCourse = () => {
-    dispatch(addCourse({ ...course, _id: new Date().getTime().toString() }))
+  const addNewCourse = async () => {
+    const newCourse = await userClient.createCourse(course);
+    setCourses([ ...courses, newCourse ]);
   };
-  const deleteACourse = (courseId: any) => {
-    dispatch(deleteCourse( {course:courseId} ))
+  
+  const deleteACourse = async (courseId: string) => {
+    const status = await courseClient.deleteCourse(courseId);
+    setCourses(courses.filter((course) => course._id !== courseId));
   };
-  const updateACourse = () => {
-    dispatch(updateCourse({...course}))
-  };
+
+  const updateACourse = async () => {
+    await courseClient.updateCourse(course);
+    setCourses(courses.map((c) => {
+        if (c._id === course._id) { return course; }
+        else { return c; }
+    })
+  );};
+
 
   const toggle = ()=>{
     
@@ -44,6 +68,7 @@ export default function Kanbas() {
     
   }
   return (
+    <Session>
     <div id="wd-kanbas">
             <KanbasNavigation />
           <div  className="wd-main-content-offset p-3">
@@ -113,4 +138,5 @@ export default function Kanbas() {
             </Routes>
           </div>
     </div>
+    </Session>
 );}
