@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 export default function Dashboard({
+  fetchCourses,
   courses,
   course,
   setCourse,
@@ -17,6 +18,7 @@ export default function Dashboard({
   updateCourse,
   toggle,
 }: {
+  fetchCourses:()=>void;
   courses: any[];
   course: any;
   setCourse: (course: any) => void;
@@ -25,7 +27,7 @@ export default function Dashboard({
   updateCourse: () => void;
   toggle: ()=>void
 }) {
-  
+  console.log("Course123:",courses)
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state: any) => state.accountReducer);
   
