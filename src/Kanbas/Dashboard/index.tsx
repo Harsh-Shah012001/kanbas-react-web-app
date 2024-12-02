@@ -7,30 +7,58 @@ import {
   ReactNode,
   ReactPortal,
   useState,
+  useEffect,
 } from "react";
+import * as enrollClient from "./Enrollment/client";
+import * as courseClient from "../Courses/client";
 export default function Dashboard({
-  fetchCourses,
   courses,
   course,
   setCourse,
   addNewCourse,
   deleteCourse,
   updateCourse,
+  fetchCourse,
   toggle,
 }: {
-  fetchCourses:()=>void;
   courses: any[];
   course: any;
   setCourse: (course: any) => void;
   addNewCourse: () => void;
   deleteCourse: (course: any) => void;
   updateCourse: () => void;
+  fetchCourse: () => void;
   toggle: ()=>void
 }) {
-  console.log("Course123:",courses)
-  const dispatch = useDispatch();
-  const { currentUser } = useSelector((state: any) => state.accountReducer);
   
+  const dispatch = useDispatch();
+  const { enrollments } = useSelector((state: any) => state.enrollmentReducer);
+  const { currentUser } = useSelector((state: any) => state.accountReducer);
+  const [allCourses, setAllCourses] = useState([])
+  const [toggler, setToggler] = useState(false)
+  const fetchAllCourses = async () => {
+    try {
+      const courses = await courseClient.fetchAllCourses();
+
+      setAllCourses(courses);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    fetchAllCourses();
+  }, []);
+  const enrollUser = (userId:any, courseId:any)=>{
+    enrollClient.enroll(userId, courseId)
+    fetchCourse()
+    dispatch(enroll({user:userId, course:courseId}))
+  }
+  
+  const unEnrollUser = (userId:any, courseId:any)=>{
+    enrollClient.unenroll(userId, courseId)
+    fetchCourse()
+    dispatch(unEnroll({user:userId, course:courseId}))
+  }
   return (
     <div id="wd-dashboard">
       <h1 id="wd-dashboard-title">Dashboard</h1> <hr />
@@ -41,7 +69,7 @@ export default function Dashboard({
               className="btn btn-primary float-end mb-2"
               id="wd-add-new-course-click"
               onClick={()=>{
-                toggle()
+                setToggler(!toggler)
               }}
             >
               Enrollments
@@ -87,7 +115,20 @@ export default function Dashboard({
       <hr />
       <div id="wd-dashboard-courses" className="row">
         <div className="row row-cols-1 row-cols-md-5 g-4">
-          {courses.map((course) => (
+          {allCourses.map((course:any)=>{
+        if(courses.some(
+          (enrollment: any) =>
+               enrollment._id === course._id
+        )){
+          // console.log( { ...course, enrolled: true } )
+          return { ...course, enrolled: true }
+        }
+        else{
+          // console.log( { ...course, enrolled: false } )
+          return { ...course, enrolled: false }
+        }
+      }).filter(course=>toggler || currentUser.role === "FACULTY" ? (toggler || currentUser.role === "FACULTY") && course.enrolled == true : true)
+            .map((course) => (
               <div
                 className="wd-dashboard-course col"
                 style={{ width: "300px" }}
@@ -114,7 +155,7 @@ export default function Dashboard({
                       <button
                         onClick={(event) => {
                           event.preventDefault();
-                          dispatch(unEnroll({user:currentUser._id, course:course._id}))
+                          unEnrollUser(currentUser._id, course._id)
                         }}
                         className="btn btn-danger float-end"
                         id="wd-delete-course-click"
@@ -126,7 +167,7 @@ export default function Dashboard({
                       <button
                         onClick={(event) => {
                           event.preventDefault();
-                          dispatch(enroll({user:currentUser._id, course:course._id}))
+                          enrollUser(currentUser._id, course._id)
                         }}
                         className="btn btn-success float-end"
                         id="wd-delete-course-click"

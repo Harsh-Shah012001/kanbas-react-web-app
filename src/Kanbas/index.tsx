@@ -27,7 +27,7 @@ export default function Kanbas() {
   useEffect(() => {
     fetchCourses();
   }, [currentUser]);
-
+  const fetchCourseCallback = ()=>{fetchCourses()}
   const dispatch = useDispatch();
   const { enrollments } = useSelector((state: any) => state.enrollmentReducer);
   const [allcourse, setAllCourse] = useState<any[]>([]);
@@ -39,6 +39,7 @@ export default function Kanbas() {
   const addNewCourse = async () => {
     const newCourse = await userClient.createCourse(course);
     setCourses([...courses, newCourse]);
+    fetchCourses();
   };
 
   const fetchAllCourse = async () => {
@@ -56,11 +57,12 @@ export default function Kanbas() {
   const deleteACourse = async (courseId: string) => {
     const status = await courseClient.deleteCourse(courseId);
     setCourses(courses.filter((course) => course._id !== courseId));
+    fetchCourses();
   };
 
   const updateACourse = async () => {
     await courseClient.updateCourse(course);
-    fetchAllCourse()
+    await fetchAllCourse()
     //   // setCourses(courses.map((c) => {
     //   //     if (c._id === course._id) { return course; }
     //   //     else { return c; }
@@ -113,12 +115,12 @@ export default function Kanbas() {
                       }
                     })
                   }
-                  fetchCourses={fetchCourses}
                   course={course}
                   setCourse={setCourse}
                   addNewCourse={addNewCourse}
                   deleteCourse={deleteACourse}
                   updateCourse={updateACourse}
+                  fetchCourse = {fetchCourseCallback}
                   toggle={toggle} />
               </ProtectedRoute>
             } />
